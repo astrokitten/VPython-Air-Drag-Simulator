@@ -4,6 +4,8 @@ from __future__ import division
 #Physics 212E Final Project
 
 from visual import *
+#import graphing features
+from visual.graph import *
 import math
 from random import uniform
 from random import choice
@@ -18,6 +20,8 @@ scene.background = (1, 1, 0.9)
 scene.title = "Drag Force!"
 #set window center
 scene.center = (10, 0, 0)
+#set window dimensions
+
 
 #initialize any constants
 grav = -9.81
@@ -73,7 +77,7 @@ attributes (Y) or manually input ball  attributes yourself (N)? ")
 for i in range(numSpheres):
     if userPreference.upper() == 'Y':
         #use random.uniform to select numbers randomly from a continuous distribution
-        mass = uniform(10, 50)
+        mass = uniform(100, 500)
         radius = uniform(1, 2.5)
     elif userPreference.upper() == 'N':
         #get user input for each attribute (kind of tedious ...)
@@ -89,10 +93,17 @@ for i in range(numSpheres):
     print('Added ball number ' + str(i+1) + '.')
 
 #time-step
-dt = 0.05
+dt = .01
+
+#create kinetic energy graph window
+scene2 = display()
+#create drag force graph window
+scene3 = display()
+
 
 #while loop deals with dynamic variables
 while True:
+    scene.select()
     rate(750)
     #change each object independently
     #Note: When drag becomes equal to weight, acceleration = 0 and terminal
@@ -109,15 +120,25 @@ while True:
                     ball.surfaceArea / 2
         # a = F/m = (W-D)/m
         acceleration = (weight - dragForce)/ball.mass
-        if ball.pos.y - ball.radius >= floor.pos.y:
-            #update velocity and position using Euler-Cromer step
-            '''note: scaled to avoid overflow errors'''
-            ball.velocity.y -= (dt*acceleration)*0.1
-            ball.pos.y += (dt*ball.velocity.y)*0.1
-        #bounce back up, if kinetic energy isn't zero
-        else:
-            if kineticEnergy != 0:
-                #reverse direction
+        if ball.velocity.y < 0:
+            if ball.pos.y - ball.radius >= floor.pos.y + floor.height/2:
+                #update velocity and position using Euler-Cromer step
+                '''note: scaled to avoid overflow errors'''
+                ball.velocity.y -= (dt*acceleration)
+                ball.pos.y += (dt*ball.velocity.y)
+            #bounce back up, if kinetic energy isn't zero
+            else:
                 ball.velocity.y *= -1
                 #ball loses a bit of energy
-                ball.velocity.y -= 0.2
+                ball.velocity.y -= 3
+        else:
+            ball.velocity.y -= (dt*acceleration)
+            ball.pos.y += (dt*ball.velocity.y)
+            
+        print (ball.velocity)
+        ### Switch to kinetic energy graph
+        scene2.select()
+        
+
+        ### Switch to drag force graph
+        scene3.select()
